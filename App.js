@@ -1,16 +1,17 @@
 import React from "react";
 import { View, Text, Button } from "react-native";
-import { createAppContainer } from "react-navigation";
+import { createAppContainer, createSwitchNavigator } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
+import MainTabNavigator from "./screens/MainTabNavigator";
 
-class HomeScreen extends React.Component {
+class Login extends React.Component {
   render() {
     return (
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <Text>Home Screen</Text>
+        <Text>Login</Text>
         <Button
-          title="Go to Details"
-          onPress={() => this.props.navigation.navigate("Details")} // navigation prop is passed down to this component
+          title="Go to Main"
+          onPress={() => this.props.navigation.navigate("Main")} // navigation prop is passed down to this component
           // can only call keys defined in createStackNavigator()
         />
       </View>
@@ -18,36 +19,36 @@ class HomeScreen extends React.Component {
   }
 }
 
-class DetailsScreen extends React.Component {
-  render() {
-    return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <Text>Details Screen</Text>
-        <Button
-          title="Go to Details... again"
-          onPress={() => this.props.navigation.push("Details")} // oqpens new component
-          // navigate checks if you're already at the destination, then push()es
-        />
-        <Button
-          title="Go to Home"
-          onPress={() => this.props.navigation.navigate("Home")}
-        />
-        <Button
-          title="Go back"
-          onPress={() => this.props.navigation.goBack()}
-        />
-      </View>
-    );
-  }
-}
+// class DetailsScreen extends React.Component {
+//   render() {
+//     return (
+//       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+//         <Text>Details Screen</Text>
+//         <Button
+//           title="Go to Details... again"
+//           onPress={() => this.props.navigation.push("Details")} // oqpens new component
+//           // navigate checks if you're already at the destination, then push()es
+//         />
+//         <Button
+//           title="Go to Home"
+//           onPress={() => this.props.navigation.navigate("Home")}
+//         />
+//         <Button
+//           title="Go back"
+//           onPress={() => this.props.navigation.goBack()}
+//         />
+//       </View>
+//     );
+//   }
+// }
 
-const RootStack = createStackNavigator(
+const RootStack = createSwitchNavigator(
   {
-    Home: HomeScreen,
-    Details: DetailsScreen
+    Login: Login,
+    Main: MainTabNavigator
   },
   {
-    initialRouteName: "Home"
+    initialRouteName: "Login"
   }
 );
 
