@@ -4,15 +4,8 @@ import { createBottomTabNavigator } from "react-navigation-tabs";
 import { createStackNavigator } from "react-navigation-stack";
 import { Ionicons, AntDesign } from "@expo/vector-icons"; // search expo vector icons to see full list
 
-class NewDeliveryScreen extends React.Component {
-  render() {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text>New Delivery</Text>
-      </View>
-    );
-  }
-}
+import NewDeliveryScreen from "./NewDeliveryScreen";
+import InboxScreen from "./InboxScreen";
 
 const NewDeliveryStack = createStackNavigator({
   NewDelivery: NewDeliveryScreen
@@ -29,15 +22,20 @@ NewDeliveryStack.navigationOptions = {
   )
 };
 
-class InboxScreen extends React.Component {
-  render() {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text>Inbox</Text>
-      </View>
-    );
-  }
-}
+const InboxStack = createStackNavigator({
+  Inbox: InboxScreen
+});
+
+InboxStack.navigationOptions = {
+  tabBarLabel: "Inbox",
+  tabBarIcon: ({ focused, horizontal, tintColor }) => (
+    <Ionicons
+      name={`ios-information-circle${focused ? "" : "-outline"}`} // conditional
+      size={25}
+      color={tintColor}
+    />
+  )
+};
 
 class MyInfoScreen extends React.Component {
   render() {
@@ -51,7 +49,7 @@ class MyInfoScreen extends React.Component {
 
 const MainTabNavigator = createBottomTabNavigator({
   NewDelivery: NewDeliveryStack,
-  Inbox: InboxScreen,
+  Inbox: InboxStack,
   MyInfo: MyInfoScreen
 });
 
