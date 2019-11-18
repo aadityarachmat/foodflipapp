@@ -1,10 +1,11 @@
 import React from "react";
-import { View, Text, Button, TextInput } from "react-native";
+import { View, Text, Button, TextInput, StyleSheet } from "react-native";
 import { createAppContainer, createSwitchNavigator } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import MainTabNavigator from "./screens/MainTabNavigator";
 
 import * as firebase from "firebase";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 var firebaseConfig = {
   apiKey: "AIzaSyCqvpP5fwKUghPZC1WQVlZmsMjE9sj1mTQ",
@@ -39,12 +40,13 @@ class Login extends React.Component {
 
   render() {
     return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+      <View style={style.body}>
         <TextInput
           placeholder="email"
           autoCapitalize="none"
           onChangeText={email => this.setState({ email })}
           value={this.state.email}
+          style={style.textfield}
         ></TextInput>
         <TextInput
           secureTextEntry
@@ -52,13 +54,15 @@ class Login extends React.Component {
           autocapitalize="none"
           onChangeText={password => this.setState({ password })}
           value={this.state.password}
+          style={[style.textfield, style.passwordfield]}
         ></TextInput>
-        <Button
-          title="Login"
-          onPress={() => this.handleLogin()} // navigation prop is passed down to this component
-          // can only call keys defined in createStackNavigator()
-        />
-        <Text>{this.state.error}</Text>
+        <TouchableOpacity
+          onPress={() => this.handleLogin()}
+          style={style.loginButton}
+        >
+          <Text>Login</Text>
+        </TouchableOpacity>
+        <Text style={style.errorBox}>{this.state.error}</Text>
       </View>
     );
   }
@@ -104,3 +108,35 @@ export default class App extends React.Component {
     return <AppContainer />;
   }
 }
+
+const style = StyleSheet.create({
+  textfield: {
+    borderWidth: 1,
+    borderColor: "#aaaaaa",
+    padding: 10,
+    margin: 10,
+    width: "60%",
+    borderRadius: 5
+  },
+  body: {
+    flex: 1,
+    alignItems: "center" /* horizontal */,
+    justifyContent: "center" /* vertical */
+  },
+  loginButton: {
+    padding: 10,
+    backgroundColor: "lightgreen",
+    borderRadius: 10,
+    width: 200,
+    fontSize: 16,
+    alignItems: "center",
+    marginTop: 10
+  },
+  errorBox: {
+    marginTop: 20,
+    color: "red"
+  },
+  passwordfield: {
+    backgroundColor: "pink"
+  }
+});
