@@ -1,8 +1,10 @@
 import React from "react";
-import { Text, View } from "react-native";
+import { Text, View, TouchableOpacity } from "react-native";
 import { createBottomTabNavigator } from "react-navigation-tabs";
 import { createStackNavigator } from "react-navigation-stack";
 import { Ionicons, AntDesign } from "@expo/vector-icons"; // search expo vector icons to see full list
+
+import * as firebase from "firebase";
 
 import NewDeliveryScreen from "./NewDeliveryScreen";
 import InboxScreen from "./InboxScreen";
@@ -42,6 +44,14 @@ class MyInfoScreen extends React.Component {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <Text>My Info!</Text>
+        <TouchableOpacity
+          onPress={
+            () => firebase.auth().signOut()
+            /* TODO: navigate back to login screen on press*/
+          }
+        >
+          <Text>Sign Out</Text>
+        </TouchableOpacity>
       </View>
     );
   }

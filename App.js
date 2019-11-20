@@ -7,6 +7,8 @@ import MainTabNavigator from "./screens/MainTabNavigator";
 import * as firebase from "firebase";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
+import LoginModule from "./components/LoginModule";
+
 var firebaseConfig = {
   apiKey: "AIzaSyCqvpP5fwKUghPZC1WQVlZmsMjE9sj1mTQ",
   authDomain: "foodflip-272d2.firebaseapp.com",
@@ -21,7 +23,7 @@ var firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 // firebase.analytics();
 
-class Login extends React.Component {
+class LoginScreen extends React.Component {
   state = {
     email: "",
     password: "",
@@ -50,33 +52,17 @@ class Login extends React.Component {
   render() {
     return (
       <View style={style.body}>
-        <TextInput
-          placeholder="email"
-          autoCapitalize="none"
-          onChangeText={email => this.setState({ email })}
-          value={this.state.email}
-          style={style.textfield}
-        ></TextInput>
-        <TextInput
-          secureTextEntry
-          placeholder="password"
-          autocapitalize="none"
-          onChangeText={password => this.setState({ password })}
-          value={this.state.password}
-          style={[style.textfield, style.passwordfield]}
-        ></TextInput>
-        <TouchableOpacity
-          onPress={() => this.handleLogin()}
-          style={style.loginButton}
-        >
-          <Text>Login</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => this.props.navigation.navigate("Signup")}
-        >
-          <Text>Sign Up</Text>
-        </TouchableOpacity>
-        <Text style={style.errorBox}>{this.state.error}</Text>
+        <LoginModule
+          onChangeEmail={email => this.setState({ email })}
+          email={this.state.email}
+          onChangePassword={password => this.setState({ password })}
+          email={this.state.email}
+          firstButtonAction={() => this.handleLogin()}
+          firstButtonTitle="Log In"
+          secondButtonAction={() => this.props.navigation.navigate("Signup")}
+          secondButtonTitle="Sign Up"
+          error={this.state.error}
+        ></LoginModule>
       </View>
     );
   }
@@ -102,33 +88,17 @@ class SignupScreen extends React.Component {
   render() {
     return (
       <View style={style.body}>
-        <TextInput
-          placeholder="email"
-          autoCapitalize="none"
-          onChangeText={email => this.setState({ email })}
-          value={this.state.email}
-          style={style.textfield}
-        ></TextInput>
-        <TextInput
-          secureTextEntry
-          placeholder="password"
-          autocapitalize="none"
-          onChangeText={password => this.setState({ password })}
-          value={this.state.password}
-          style={[style.textfield, style.passwordfield]}
-        ></TextInput>
-        <TouchableOpacity
-          onPress={() => this.handleSignup()}
-          style={style.loginButton}
-        >
-          <Text>Sign Up</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => this.props.navigation.navigate("Login")}
-        >
-          <Text>Login</Text>
-        </TouchableOpacity>
-        <Text style={style.errorBox}>{this.state.error}</Text>
+        <LoginModule
+          onChangeEmail={email => this.setState({ email })}
+          email={this.state.email}
+          onChangePassword={password => this.setState({ password })}
+          email={this.state.email}
+          firstButtonAction={() => this.handleSignup()}
+          firstButtonTitle="Sign Up"
+          secondButtonAction={() => this.props.navigation.navigate("Login")}
+          secondButtonTitle="Login"
+          error={this.state.error}
+        ></LoginModule>
       </View>
     );
   }
@@ -136,7 +106,7 @@ class SignupScreen extends React.Component {
 
 const RootStack = createSwitchNavigator(
   {
-    Login: Login,
+    Login: LoginScreen,
     Signup: SignupScreen,
     Main: MainTabNavigator
   },
@@ -154,33 +124,9 @@ export default class App extends React.Component {
 }
 
 const style = StyleSheet.create({
-  textfield: {
-    borderWidth: 1,
-    borderColor: "#aaaaaa",
-    padding: 10,
-    margin: 10,
-    width: "60%",
-    borderRadius: 5
-  },
   body: {
     flex: 1,
     alignItems: "center" /* horizontal */,
     justifyContent: "center" /* vertical */
-  },
-  loginButton: {
-    padding: 10,
-    backgroundColor: "lightgreen",
-    borderRadius: 10,
-    width: 200,
-    fontSize: 16,
-    alignItems: "center",
-    marginTop: 10
-  },
-  errorBox: {
-    marginTop: 20,
-    color: "red"
-  },
-  passwordfield: {
-    backgroundColor: "pink"
   }
 });
