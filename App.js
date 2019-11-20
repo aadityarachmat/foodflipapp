@@ -28,6 +28,15 @@ class Login extends React.Component {
     error: ""
   };
 
+  componentDidMount() {
+    // Runs if the page loads
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        this.props.navigation.navigate("Main");
+      }
+    });
+  }
+
   handleLogin() {
     const { email, password } = this.state;
     firebase
@@ -62,38 +71,73 @@ class Login extends React.Component {
         >
           <Text>Login</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => this.props.navigation.navigate("Signup")}
+        >
+          <Text>Sign Up</Text>
+        </TouchableOpacity>
         <Text style={style.errorBox}>{this.state.error}</Text>
       </View>
     );
   }
 }
 
-// class DetailsScreen extends React.Component {
-//   render() {
-//     return (
-//       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-//         <Text>Details Screen</Text>
-//         <Button
-//           title="Go to Details... again"
-//           onPress={() => this.props.navigation.push("Details")} // oqpens new component
-//           // navigate checks if you're already at the destination, then push()es
-//         />
-//         <Button
-//           title="Go to Home"
-//           onPress={() => this.props.navigation.navigate("Home")}
-//         />
-//         <Button
-//           title="Go back"
-//           onPress={() => this.props.navigation.goBack()}
-//         />
-//       </View>
-//     );
-//   }
-// }
+class SignupScreen extends React.Component {
+  state = {
+    email: "",
+    password: "",
+    error: ""
+  };
+
+  handleSignup() {
+    const { email, password } = this.state;
+    firebase
+      .auth()
+      .createUserWithEmailAndPassword(email, password)
+      .then(() => this.props.navigation.navigate("Main"))
+      .catch(error => this.setState({ error: error.message }));
+    console.log("handleLogin");
+  }
+
+  render() {
+    return (
+      <View style={style.body}>
+        <TextInput
+          placeholder="email"
+          autoCapitalize="none"
+          onChangeText={email => this.setState({ email })}
+          value={this.state.email}
+          style={style.textfield}
+        ></TextInput>
+        <TextInput
+          secureTextEntry
+          placeholder="password"
+          autocapitalize="none"
+          onChangeText={password => this.setState({ password })}
+          value={this.state.password}
+          style={[style.textfield, style.passwordfield]}
+        ></TextInput>
+        <TouchableOpacity
+          onPress={() => this.handleSignup()}
+          style={style.loginButton}
+        >
+          <Text>Sign Up</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => this.props.navigation.navigate("Login")}
+        >
+          <Text>Login</Text>
+        </TouchableOpacity>
+        <Text style={style.errorBox}>{this.state.error}</Text>
+      </View>
+    );
+  }
+}
 
 const RootStack = createSwitchNavigator(
   {
     Login: Login,
+    Signup: SignupScreen,
     Main: MainTabNavigator
   },
   {
