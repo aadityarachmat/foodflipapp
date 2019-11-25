@@ -1,13 +1,13 @@
 import React from "react";
-import { View, Text, Button, TextInput, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { createAppContainer, createSwitchNavigator } from "react-navigation";
-import { createStackNavigator } from "react-navigation-stack";
 import MainTabNavigator from "./screens/MainTabNavigator";
 
 import * as firebase from "firebase";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
 import LoginModule from "./components/LoginModule";
+import ContinueSignupScreen from "./screens/ContinueSignupScreen";
 
 var firebaseConfig = {
   apiKey: "AIzaSyCqvpP5fwKUghPZC1WQVlZmsMjE9sj1mTQ",
@@ -88,6 +88,7 @@ class SignupScreen extends React.Component {
   render() {
     return (
       <View style={style.body}>
+        <ContinueSignupScreen></ContinueSignupScreen>
         <LoginModule
           onChangeEmail={email => this.setState({ email })}
           email={this.state.email}
