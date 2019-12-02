@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, Button, StyleSheet, View } from "react-native";
+import { Modal, Text, Button, StyleSheet, View } from "react-native";
 import { TextInput, TouchableOpacity } from "react-native-gesture-handler";
 
 import RadioButton from "../components/RadioButton";
@@ -8,7 +8,9 @@ export default class ContinueSignupScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      radioSelected: "outletStaff"
+      radioSelected: "outletStaff",
+      locationModalVisible: false,
+      shiftModalVisible: false
     };
   }
 
@@ -23,36 +25,34 @@ export default class ContinueSignupScreen extends React.Component {
     // TODO: Add navigation to choose location, choose shift
     return (
       <>
+        <Modal visible={this.state.locationModalVisible} animationType="slide">
+          <Text style={{ paddingTop: 99 }}>Hello! This is a popup. </Text>
+          <Button
+            onPress={() => this.setState({ locationModalVisible: false })}
+            title="Close"
+          ></Button>
+        </Modal>
         <View style={styles.radioBox}>
-          <TouchableOpacity
+          <RadioButton
             onPress={() => this.radioClick("outletStaff")}
-            style={styles.radioContainer}
-          >
-            <RadioButton
-              selected={this.state.radioSelected === "outletStaff"}
-            ></RadioButton>
-            <Text>Outlet Staff</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
+            selected={this.state.radioSelected === "outletStaff"}
+            text="Outlet Staff"
+          ></RadioButton>
+          <RadioButton
             onPress={() => this.radioClick("recipient")}
-            style={styles.radioContainer}
-          >
-            <RadioButton
-              selected={this.state.radioSelected === "recipient"}
-            ></RadioButton>
-            <Text>Recipient</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
+            selected={this.state.radioSelected === "recipient"}
+            text="Recipient"
+          ></RadioButton>
+          <RadioButton
             onPress={() => this.radioClick("foodFlipStaff")}
-            style={styles.radioContainer}
-          >
-            <RadioButton
-              selected={this.state.radioSelected === "foodFlipStaff"}
-            ></RadioButton>
-            <Text>FoodFlip Staff</Text>
-          </TouchableOpacity>
+            selected={this.state.radioSelected === "foodFlipStaff"}
+            text="FoodFlip Staff"
+          ></RadioButton>
         </View>
-        <ChooseLocationButton radioSelected={this.state.radioSelected} />
+        <ChooseLocationButton
+          radioSelected={this.state.radioSelected}
+          onPress={() => this.setState({ locationModalVisible: true })}
+        />
         <Button title="Choose Shift"></Button>
         <TextInput
           style={styles.textfield}
@@ -78,7 +78,9 @@ class ChooseLocationButton extends React.Component {
     if (this.props.radioSelected === "foodFlipStaff") {
       return null;
     }
-    return <Button title="Choose Location"></Button>; // TODO: add destination
+    return (
+      <Button title="Choose Location" onPress={this.props.onPress}></Button>
+    ); // TODO: add destination
   }
 }
 
@@ -93,8 +95,5 @@ const styles = StyleSheet.create({
     margin: 10,
     width: "60%",
     borderRadius: 5
-  },
-  radioContainer: {
-    flexDirection: "row"
   }
 });

@@ -1,34 +1,40 @@
 import React from "react";
-import { View } from "react-native";
+import { View, StyleSheet, Text } from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default class RadioButton extends React.Component {
   render() {
     return (
-      <View
-        style={[
-          {
-            height: 24,
-            width: 24,
-            borderRadius: 12,
-            borderWidth: 2,
-            borderColor: "#000",
-            alignItems: "center",
-            justifyContent: "center"
-          },
-          this.props.style
-        ]}
+      <TouchableOpacity
+        style={styles.radioContainer}
+        onPress={this.props.onPress}
       >
-        {this.props.selected ? (
-          <View
-            style={{
-              height: 12,
-              width: 12,
-              borderRadius: 6,
-              backgroundColor: "#000"
-            }}
-          />
-        ) : null}
-      </View>
+        <View style={styles.largerCircle} onPress={this.props.onPress}>
+          {this.props.selected ? <View style={styles.smallerCircle} /> : null}
+        </View>
+        <Text>{this.props.text}</Text>
+      </TouchableOpacity>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  radioContainer: {
+    flexDirection: "row"
+  },
+  largerCircle: {
+    height: 24,
+    width: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: "#000",
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  smallerCircle: {
+    height: 12,
+    width: 12,
+    borderRadius: 6,
+    backgroundColor: "#000"
+  }
+});

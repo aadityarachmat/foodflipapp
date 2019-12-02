@@ -8,7 +8,6 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 
 import LoginModule from "./components/LoginModule";
 import ContinueSignupScreen from "./screens/ContinueSignupScreen";
-import { runInThisContext } from "vm";
 
 var firebaseConfig = {
   apiKey: "AIzaSyCqvpP5fwKUghPZC1WQVlZmsMjE9sj1mTQ",
@@ -94,7 +93,8 @@ class SignupScreen extends React.Component {
           .set({
             name,
             phone,
-            type
+            type,
+            email
           });
       })
       .catch(error => this.setState({ error: error.message }));
