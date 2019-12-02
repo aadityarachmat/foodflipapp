@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, KeyboardAvoidingView } from "react-native";
 import { createAppContainer, createSwitchNavigator } from "react-navigation";
 import MainTabNavigator from "./screens/MainTabNavigator";
 
@@ -8,6 +8,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 
 import LoginModule from "./components/LoginModule";
 import ContinueSignupScreen from "./screens/ContinueSignupScreen";
+import { runInThisContext } from "vm";
 
 var firebaseConfig = {
   apiKey: "AIzaSyCqvpP5fwKUghPZC1WQVlZmsMjE9sj1mTQ",
@@ -70,25 +71,44 @@ class LoginScreen extends React.Component {
 
 class SignupScreen extends React.Component {
   state = {
+    name: "",
+    phone: "",
     email: "",
     password: "",
-    error: ""
+    error: "",
+    type: "outletStaff"
   };
 
   handleSignup() {
-    const { email, password } = this.state;
+    // console.log(this.state);
+    const { email, password, name, phone, type } = this.state;
+    const safeEmail = email.replace("@", "(at)").replace(".", "(dot)");
     firebase
       .auth()
       .createUserWithEmailAndPassword(email, password)
-      .then(() => this.props.navigation.navigate("Main"))
+      .then(() => {
+        this.props.navigation.navigate("Main");
+        firebase
+          .database()
+          .ref("users/" + safeEmail)
+          .set({
+            name,
+            phone,
+            type
+          });
+      })
       .catch(error => this.setState({ error: error.message }));
     console.log("handleLogin");
   }
 
   render() {
     return (
-      <View style={style.body}>
-        <ContinueSignupScreen></ContinueSignupScreen>
+      <KeyboardAvoidingView style={style.body} behavior="padding" enabled>
+        <ContinueSignupScreen
+          onChangeName={name => this.setState({ name })}
+          onChangePhone={phone => this.setState({ phone })}
+          onSelectType={type => this.setState({ type })}
+        ></ContinueSignupScreen>
         <LoginModule
           onChangeEmail={email => this.setState({ email })}
           email={this.state.email}
@@ -100,7 +120,7 @@ class SignupScreen extends React.Component {
           secondButtonTitle="Login"
           error={this.state.error}
         ></LoginModule>
-      </View>
+      </KeyboardAvoidingView>
     );
   }
 }

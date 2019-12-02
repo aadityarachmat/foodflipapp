@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, Button, StyleSheet } from "react-native";
+import { Text, Button, StyleSheet, View } from "react-native";
 import { TextInput, TouchableOpacity } from "react-native-gesture-handler";
 
 import RadioButton from "../components/RadioButton";
@@ -16,39 +16,53 @@ export default class ContinueSignupScreen extends React.Component {
     this.setState({
       radioSelected: id
     });
+    this.props.onSelectType(id);
   }
 
   render() {
     // TODO: Add navigation to choose location, choose shift
     return (
       <>
-        <TouchableOpacity onPress={() => this.radioClick("outletStaff")}>
-          <Text>Outlet Staff</Text>
-          <RadioButton
-            selected={this.state.radioSelected === "outletStaff"}
-          ></RadioButton>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => this.radioClick("recipient")}>
-          <Text>Recipient</Text>
-          <RadioButton
-            selected={this.state.radioSelected === "recipient"}
-          ></RadioButton>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => this.radioClick("foodFlipStaff")}>
-          <Text>FoodFlip Staff</Text>
-          <RadioButton
-            selected={this.state.radioSelected === "foodFlipStaff"}
-          ></RadioButton>
-        </TouchableOpacity>
+        <View style={styles.radioBox}>
+          <TouchableOpacity
+            onPress={() => this.radioClick("outletStaff")}
+            style={styles.radioContainer}
+          >
+            <RadioButton
+              selected={this.state.radioSelected === "outletStaff"}
+            ></RadioButton>
+            <Text>Outlet Staff</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => this.radioClick("recipient")}
+            style={styles.radioContainer}
+          >
+            <RadioButton
+              selected={this.state.radioSelected === "recipient"}
+            ></RadioButton>
+            <Text>Recipient</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => this.radioClick("foodFlipStaff")}
+            style={styles.radioContainer}
+          >
+            <RadioButton
+              selected={this.state.radioSelected === "foodFlipStaff"}
+            ></RadioButton>
+            <Text>FoodFlip Staff</Text>
+          </TouchableOpacity>
+        </View>
         <ChooseLocationButton radioSelected={this.state.radioSelected} />
         <Button title="Choose Shift"></Button>
         <TextInput
           style={styles.textfield}
+          onChangeText={this.props.onChangeName}
           placeholder="Name"
           autoCapitalize="words"
         ></TextInput>
         <TextInput
           style={styles.textfield}
+          onChangeText={this.props.onChangePhone}
           placeholder="Phone Number"
           autoCapitalize="none"
           autoCompleteType="tel"
@@ -69,6 +83,9 @@ class ChooseLocationButton extends React.Component {
 }
 
 const styles = StyleSheet.create({
+  radioBox: {
+    width: "50%"
+  },
   textfield: {
     borderWidth: 1,
     borderColor: "#aaaaaa",
@@ -77,22 +94,7 @@ const styles = StyleSheet.create({
     width: "60%",
     borderRadius: 5
   },
-  body: {
-    flex: 1,
-    alignItems: "center" /* horizontal */,
-    justifyContent: "center" /* vertical */
-  },
-  loginButton: {
-    padding: 10,
-    backgroundColor: "lightgreen",
-    borderRadius: 10,
-    width: 200,
-    fontSize: 16,
-    alignItems: "center",
-    marginTop: 10
-  },
-  errorBox: {
-    marginTop: 20,
-    color: "red"
+  radioContainer: {
+    flexDirection: "row"
   }
 });
