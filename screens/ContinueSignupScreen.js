@@ -26,7 +26,7 @@ export default class ContinueSignupScreen extends React.Component {
     return (
       <>
         <Modal visible={this.state.locationModalVisible} animationType="slide">
-          <Text style={{ paddingTop: 99 }}>Hello! This is a popup. </Text>
+          <Text style={{ paddingTop: 99 }}>Choose Location</Text>
           <Button
             onPress={() => this.setState({ locationModalVisible: false })}
             title="Close"

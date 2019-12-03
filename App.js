@@ -4,7 +4,6 @@ import { createAppContainer, createSwitchNavigator } from "react-navigation";
 import MainTabNavigator from "./screens/MainTabNavigator";
 
 import * as firebase from "firebase";
-import { TouchableOpacity } from "react-native-gesture-handler";
 
 import LoginModule from "./components/LoginModule";
 import ContinueSignupScreen from "./screens/ContinueSignupScreen";
@@ -79,17 +78,16 @@ class SignupScreen extends React.Component {
   };
 
   handleSignup() {
-    // console.log(this.state);
     const { email, password, name, phone, type } = this.state;
-    const safeEmail = email.replace("@", "(at)").replace(".", "(dot)");
     firebase
       .auth()
       .createUserWithEmailAndPassword(email, password)
       .then(() => {
+        const user = firebase.auth().currentUser;
         this.props.navigation.navigate("Main");
         firebase
           .database()
-          .ref("users/" + safeEmail)
+          .ref("users/" + user.uid)
           .set({
             name,
             phone,
