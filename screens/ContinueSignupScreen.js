@@ -1,8 +1,11 @@
 import React from "react";
-import { Modal, Text, Button, StyleSheet, View } from "react-native";
+import { Modal, Text, Button, StyleSheet, View, FlatList } from "react-native";
 import { TextInput, TouchableOpacity } from "react-native-gesture-handler";
 
 import RadioButton from "../components/RadioButton";
+import * as firebase from "firebase";
+
+var outlets = [];
 
 export default class ContinueSignupScreen extends React.Component {
   constructor(props) {
@@ -21,12 +24,35 @@ export default class ContinueSignupScreen extends React.Component {
     this.props.onSelectType(id);
   }
 
+  componentDidMount() {
+    // runs when component is loaded
+    const database = firebase.database();
+    database
+      .ref("/Outlets")
+      .once("value")
+      .then(function(snapshot) {
+        snapshot.forEach(function(childSnapshot) {
+          // Get JS Object:
+          const outlet = childSnapshot.val();
+          const fullName = outlet.Retailer + " – " + outlet.Name;
+          outlets.push(fullName);
+        });
+      });
+  }
+
   render() {
     // TODO: Add navigation to choose location, choose shift
     return (
       <>
         <Modal visible={this.state.locationModalVisible} animationType="slide">
           <Text style={{ paddingTop: 99 }}>Choose Location</Text>
+          <FlatList
+            data={outlets}
+            renderItem={({ item }) => (
+              <RadioButton selected={false} text={item}></RadioButton>
+            )}
+            keyExtractor={item => item}
+          ></FlatList>
           <Button
             onPress={() => this.setState({ locationModalVisible: false })}
             title="Close"
