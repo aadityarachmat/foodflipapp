@@ -50,19 +50,19 @@ class LoginScreen extends React.Component {
 
   render() {
     return (
-      <View style={style.body}>
+      <KeyboardAvoidingView style={style.body} behavior="padding" enabled>
         <LoginModule
           onChangeEmail={email => this.setState({ email })}
           email={this.state.email}
           onChangePassword={password => this.setState({ password })}
-          email={this.state.email}
+          password={this.state.password}
           firstButtonAction={() => this.handleLogin()}
           firstButtonTitle="Log In"
           secondButtonAction={() => this.props.navigation.navigate("Signup")}
           secondButtonTitle="Sign Up"
           error={this.state.error}
         ></LoginModule>
-      </View>
+      </KeyboardAvoidingView>
     );
   }
 }

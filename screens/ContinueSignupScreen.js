@@ -6,6 +6,7 @@ import RadioButton from "../components/RadioButton";
 import * as firebase from "firebase";
 
 var outlets = [];
+var recipients = [];
 
 export default class ContinueSignupScreen extends React.Component {
   constructor(props) {
@@ -27,27 +28,43 @@ export default class ContinueSignupScreen extends React.Component {
   componentDidMount() {
     // runs when component is loaded
     const database = firebase.database();
-    database
-      .ref("/Outlets")
-      .once("value")
-      .then(function(snapshot) {
-        snapshot.forEach(function(childSnapshot) {
-          // Get JS Object:
-          const outlet = childSnapshot.val();
-          const fullName = outlet.Retailer + " – " + outlet.Name;
-          outlets.push(fullName);
-        });
+
+    // Get outlets, fill outlets array
+    database.ref("/Outlets").once("value", function(snapshot) {
+      snapshot.forEach(function(childSnapshot) {
+        // Get JS Object:
+        const outlet = childSnapshot.val();
+        const fullName = outlet.Retailer + " – " + outlet.Name;
+        outlets.push(fullName);
       });
+    });
+
+    // Get recipients, fill recipients array
+    database.ref("/Recipients").once("value", function(snapshot) {
+      snapshot.forEach(function(childSnapshot) {
+        const recipient = childSnapshot.val();
+        const name = recipient.Name;
+        recipients.push(name);
+      });
+    });
+  }
+
+  getData() {
+    if (this.state.radioSelected === "outletStaff") {
+      return outlets;
+    }
+    return recipients;
   }
 
   render() {
     // TODO: Add navigation to choose location, choose shift
+    let data = this.getData();
     return (
       <>
         <Modal visible={this.state.locationModalVisible} animationType="slide">
           <Text style={{ paddingTop: 99 }}>Choose Location</Text>
           <FlatList
-            data={outlets}
+            data={data}
             renderItem={({ item }) => (
               <RadioButton selected={false} text={item}></RadioButton>
             )}
