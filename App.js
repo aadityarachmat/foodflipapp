@@ -5,8 +5,8 @@ import MainTabNavigator from "./screens/MainTabNavigator";
 
 import * as firebase from "firebase";
 
-import LoginModule from "./components/LoginModule";
-import ContinueSignupScreen from "./screens/ContinueSignupScreen";
+import LoginScreen from "./screens/LoginScreen.js";
+import SignupScreen from "./screens/SignupScreen.js";
 
 var firebaseConfig = {
   apiKey: "AIzaSyCqvpP5fwKUghPZC1WQVlZmsMjE9sj1mTQ",
@@ -21,107 +21,6 @@ var firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 // firebase.analytics();
-
-class LoginScreen extends React.Component {
-  state = {
-    email: "",
-    password: "",
-    error: ""
-  };
-
-  componentDidMount() {
-    // Runs if the page loads
-    firebase.auth().onAuthStateChanged(user => {
-      if (user) {
-        this.props.navigation.navigate("Main");
-      }
-    });
-  }
-
-  handleLogin() {
-    const { email, password } = this.state;
-    firebase
-      .auth()
-      .signInWithEmailAndPassword(email, password)
-      .then(() => this.props.navigation.navigate("Main"))
-      .catch(error => this.setState({ error: error.message }));
-    console.log("handleLogin");
-  }
-
-  render() {
-    return (
-      <KeyboardAvoidingView style={style.body} behavior="padding" enabled>
-        <LoginModule
-          onChangeEmail={email => this.setState({ email })}
-          email={this.state.email}
-          onChangePassword={password => this.setState({ password })}
-          password={this.state.password}
-          firstButtonAction={() => this.handleLogin()}
-          firstButtonTitle="Log In"
-          secondButtonAction={() => this.props.navigation.navigate("Signup")}
-          secondButtonTitle="Sign Up"
-          error={this.state.error}
-        ></LoginModule>
-      </KeyboardAvoidingView>
-    );
-  }
-}
-
-class SignupScreen extends React.Component {
-  state = {
-    name: "",
-    phone: "",
-    email: "",
-    password: "",
-    error: "",
-    type: "outletStaff"
-  };
-
-  handleSignup() {
-    const { email, password, name, phone, type } = this.state;
-    firebase
-      .auth()
-      .createUserWithEmailAndPassword(email, password)
-      .then(() => {
-        const user = firebase.auth().currentUser;
-        this.props.navigation.navigate("Main");
-        firebase
-          .database()
-          .ref("users/" + user.uid)
-          .set({
-            name,
-            phone,
-            type,
-            email
-          });
-      })
-      .catch(error => this.setState({ error: error.message }));
-    console.log("handleLogin");
-  }
-
-  render() {
-    return (
-      <KeyboardAvoidingView style={style.body} behavior="padding" enabled>
-        <ContinueSignupScreen
-          onChangeName={name => this.setState({ name })}
-          onChangePhone={phone => this.setState({ phone })}
-          onSelectType={type => this.setState({ type })}
-        ></ContinueSignupScreen>
-        <LoginModule
-          onChangeEmail={email => this.setState({ email })}
-          email={this.state.email}
-          onChangePassword={password => this.setState({ password })}
-          email={this.state.email}
-          firstButtonAction={() => this.handleSignup()}
-          firstButtonTitle="Sign Up"
-          secondButtonAction={() => this.props.navigation.navigate("Login")}
-          secondButtonTitle="Login"
-          error={this.state.error}
-        ></LoginModule>
-      </KeyboardAvoidingView>
-    );
-  }
-}
 
 const RootStack = createSwitchNavigator(
   {
@@ -141,11 +40,3 @@ export default class App extends React.Component {
     return <AppContainer />;
   }
 }
-
-const style = StyleSheet.create({
-  body: {
-    flex: 1,
-    alignItems: "center" /* horizontal */,
-    justifyContent: "center" /* vertical */
-  }
-});
