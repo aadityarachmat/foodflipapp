@@ -1,5 +1,4 @@
 import React from "react";
-import { View, StyleSheet, KeyboardAvoidingView } from "react-native";
 import { createAppContainer, createSwitchNavigator } from "react-navigation";
 import MainTabNavigator from "./screens/MainTabNavigator";
 
@@ -18,7 +17,7 @@ var firebaseConfig = {
   appId: "1:549185509633:web:2a82cd8cf7efe7bac0e300",
   measurementId: "G-CEZ1XD22DG"
 };
-// Initialize Firebase
+
 firebase.initializeApp(firebaseConfig);
 // firebase.analytics();
 

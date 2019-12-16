@@ -1,33 +1,42 @@
 import React from "react";
 import { StyleSheet, TextInput, TouchableOpacity, Text } from "react-native";
 
+import CustomTextInput from "./CustomTextInput.js";
+
 export default class LoginModule extends React.Component {
   render() {
     return (
       <>
-        <TextInput
+        <CustomTextInput
+          fieldTitle="Email"
           placeholder="Email"
           autoCapitalize="none"
           onChangeText={this.props.onChangeEmail}
           value={this.props.email}
-          style={style.textfield}
-        ></TextInput>
-        <TextInput
+        />
+        <CustomTextInput
+          fieldTitle="Password"
           secureTextEntry
           placeholder="Password"
           autocapitalize="none"
           onChangeText={this.props.onChangePassword}
           value={this.props.password}
-          style={style.textfield}
-        ></TextInput>
+        />
         <TouchableOpacity
           onPress={this.props.firstButtonAction}
-          style={style.loginButton}
+          style={[style.loginButton, { marginTop: 20 }]}
         >
-          <Text>{this.props.firstButtonTitle}</Text>
+          <Text style={style.loginButtonText}>
+            {this.props.firstButtonTitle}
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={this.props.secondButtonAction}>
-          <Text>{this.props.secondButtonTitle}</Text>
+        <TouchableOpacity
+          onPress={this.props.secondButtonAction}
+          style={[style.loginButton, { top: 5, backgroundColor: "grey" }]}
+        >
+          <Text style={style.loginButtonText}>
+            {this.props.secondButtonTitle}
+          </Text>
         </TouchableOpacity>
         <Text style={style.errorBox}>{this.props.error}</Text>
       </>
@@ -37,26 +46,23 @@ export default class LoginModule extends React.Component {
 
 const style = StyleSheet.create({
   textfield: {
-    borderWidth: 1,
     borderColor: "#aaaaaa",
     padding: 10,
     margin: 10,
-    width: "60%",
-    borderRadius: 5
-  },
-  body: {
-    flex: 1,
-    alignItems: "center" /* horizontal */,
-    justifyContent: "center" /* vertical */
+    width: "60%"
   },
   loginButton: {
     padding: 10,
-    backgroundColor: "lightgreen",
-    borderRadius: 10,
-    width: 200,
-    fontSize: 16,
+    backgroundColor: "black",
+    borderRadius: 20,
     alignItems: "center",
-    marginTop: 10
+    marginTop: 10,
+    width: "60%"
+  },
+  loginButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold"
   },
   errorBox: {
     marginTop: 20,

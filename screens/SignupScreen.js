@@ -12,11 +12,13 @@ export default class SignupScreen extends React.Component {
     email: "",
     password: "",
     error: "",
-    type: "outletStaff"
+    type: "outletStaff",
+    location: "",
+    shift: ""
   };
 
   handleSignup() {
-    const { email, password, name, phone, type } = this.state;
+    const { location, email, password, name, phone, type, shift } = this.state;
     firebase
       .auth()
       .createUserWithEmailAndPassword(email, password)
@@ -30,7 +32,9 @@ export default class SignupScreen extends React.Component {
             name,
             phone,
             type,
-            email
+            email,
+            location,
+            shift
           });
       })
       .catch(error => this.setState({ error: error.message }));
@@ -42,18 +46,22 @@ export default class SignupScreen extends React.Component {
       <KeyboardAvoidingView style={style.body} behavior="padding" enabled>
         <ContinueSignupScreen
           onChangeName={name => this.setState({ name })}
+          name={this.state.name}
           onChangePhone={phone => this.setState({ phone })}
+          phone={this.state.phone}
           onSelectType={type => this.setState({ type })}
+          onSelectLocation={location => this.setState({ location })}
+          onSelectShift={shift => this.setState({ shift })}
         ></ContinueSignupScreen>
         <LoginModule
           onChangeEmail={email => this.setState({ email })}
           email={this.state.email}
           onChangePassword={password => this.setState({ password })}
-          email={this.state.email}
+          password={this.state.password}
           firstButtonAction={() => this.handleSignup()}
           firstButtonTitle="Sign Up"
           secondButtonAction={() => this.props.navigation.navigate("Login")}
-          secondButtonTitle="Login"
+          secondButtonTitle="Back to Login"
           error={this.state.error}
         ></LoginModule>
       </KeyboardAvoidingView>
