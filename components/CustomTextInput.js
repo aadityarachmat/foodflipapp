@@ -8,13 +8,9 @@ const CustomTextInput = props => {
         <Text style={styles.fieldTitle}>{props.fieldTitle}</Text>
       )}
       <TextInput
-        secureTextEntry={props.secureTextEntry}
-        placeholder={props.placeholder}
+        {...props}
         autoCapitalize="none"
-        onChangeText={props.onChangeText}
-        value={props.value}
-        keyboardType={props.keyboardType}
-        style={styles.textField}
+        style={[props.style, styles.textField]}
       ></TextInput>
     </>
   );
