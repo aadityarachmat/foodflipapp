@@ -8,6 +8,7 @@ import * as firebase from "firebase";
 
 import NewDeliveryScreen from "./NewDeliveryScreen";
 import InboxScreen from "./InboxScreen";
+import MyInfoScreen from "./MyInfoScreen";
 
 const NewDeliveryStack = createStackNavigator({
   NewDelivery: NewDeliveryScreen
@@ -38,24 +39,6 @@ InboxStack.navigationOptions = {
     />
   )
 };
-
-class MyInfoScreen extends React.Component {
-  render() {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text>My Info!</Text>
-        <TouchableOpacity
-          onPress={
-            () => firebase.auth().signOut()
-            /* TODO: navigate back to login screen on press*/
-          }
-        >
-          <Text>Sign Out</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-}
 
 const MainTabNavigator = createBottomTabNavigator({
   NewDelivery: NewDeliveryStack,
