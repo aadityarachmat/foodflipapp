@@ -10,7 +10,7 @@ const CustomTextInput = props => {
       <TextInput
         {...props}
         autoCapitalize="none"
-        style={[props.style, styles.textField]}
+        style={[styles.textField, props.style]}
       ></TextInput>
     </>
   );
