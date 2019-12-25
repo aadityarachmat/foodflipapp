@@ -1,9 +1,10 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { connect } from "react-redux";
 
 import * as firebase from "firebase";
 
-export default class MyInfoScreen extends React.Component {
+class MyInfoScreen extends React.Component {
   state = {
     name: "",
     phone: "",
@@ -15,31 +16,6 @@ export default class MyInfoScreen extends React.Component {
 
   componentDidMount() {
     // Check who we're logged in as
-    firebase.auth().onAuthStateChanged(user => {
-      if (user) {
-        const database = firebase.database();
-        database.ref("/users/" + user.uid).once("value", snapshot => {
-          console.log("snapshot");
-          console.log(snapshot.val());
-          this.setState({
-            ...snapshot.val() // Sets all values from snapshot.val() to state
-          });
-          console.log("state: ");
-          console.log(this.state);
-          database
-            .ref("/Outlets/" + snapshot.val().location)
-            .once("value", locationSnapshot => {
-              this.setState({
-                location: locationSnapshot.val()
-              });
-              console.log("final state: ");
-              console.log(this.state);
-            });
-        });
-      } else {
-        this.props.navigation.navigate("Login");
-      }
-    });
   }
 
   render() {
@@ -47,25 +23,25 @@ export default class MyInfoScreen extends React.Component {
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <Text style={styles.header}>My Info</Text>
         <Text style={styles.label}>Name:</Text>
-        <Text style={styles.field}>{this.state.name}</Text>
+        <Text style={styles.field}>{this.props.user.name}</Text>
         <Text style={styles.label}>Phone:</Text>
-        <Text style={styles.field}>{this.state.phone}</Text>
+        <Text style={styles.field}>{this.props.user.phone}</Text>
         <Text style={styles.label}>Email:</Text>
-        <Text style={styles.field}>{this.state.email}</Text>
+        <Text style={styles.field}>{this.props.user.email}</Text>
         <Text style={styles.label}>Shift:</Text>
-        <Text style={styles.field}>{this.state.shift}</Text>
+        <Text style={styles.field}>{this.props.user.shift}</Text>
         <Text style={styles.label}>Type:</Text>
-        <Text style={styles.field}>{this.state.type}</Text>
+        <Text style={styles.field}>{this.props.user.type}</Text>
 
         <Text style={styles.label}>Location:</Text>
-        <Text style={styles.field}>{this.state.location.Name}</Text>
+        <Text style={styles.field}>{this.props.user.location.Name}</Text>
         <Text style={styles.label}>Address:</Text>
-        <Text style={styles.field}>{this.state.location.Address}</Text>
+        <Text style={styles.field}>{this.props.user.location.Address}</Text>
         <Text style={styles.label}>Retailer:</Text>
-        <Text style={styles.field}>{this.state.location.Retailer}</Text>
+        <Text style={styles.field}>{this.props.user.location.Retailer}</Text>
         <Text style={styles.label}>Operation Details:</Text>
         <Text style={styles.field}>
-          {this.state.location["Operation Details"]}
+          {this.props.user.location["Operation Details"]}
         </Text>
         <TouchableOpacity
           onPress={
@@ -85,3 +61,7 @@ export default class MyInfoScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({});
+
+const mapStateToProps = state => state;
+
+export default connect(mapStateToProps)(MyInfoScreen);

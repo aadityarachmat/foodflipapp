@@ -1,7 +1,8 @@
 import React from "react";
 import { Text, View } from "react-native";
+import { connect } from "react-redux";
 
-export default class InboxScreen extends React.Component {
+class InboxScreen extends React.Component {
   render() {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -10,3 +11,6 @@ export default class InboxScreen extends React.Component {
     );
   }
 }
+
+const mapStateToProps = state => state;
+export default connect(mapStateToProps)(InboxScreen);

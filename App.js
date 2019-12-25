@@ -2,10 +2,16 @@ import React from "react";
 import { createAppContainer, createSwitchNavigator } from "react-navigation";
 import MainTabNavigator from "./screens/MainTabNavigator";
 
+import { Provider } from "react-redux";
+import { createStore } from "redux";
+import userReducer from "./reducers/UserReducer";
+
 import * as firebase from "firebase";
 
 import LoginScreen from "./screens/LoginScreen.js";
 import SignupScreen from "./screens/SignupScreen.js";
+
+const store = createStore(userReducer);
 
 var firebaseConfig = {
   apiKey: "AIzaSyCqvpP5fwKUghPZC1WQVlZmsMjE9sj1mTQ",
@@ -36,6 +42,10 @@ const AppContainer = createAppContainer(RootStack);
 
 export default class App extends React.Component {
   render() {
-    return <AppContainer />;
+    return (
+      <Provider store={store}>
+        <AppContainer />
+      </Provider>
+    );
   }
 }

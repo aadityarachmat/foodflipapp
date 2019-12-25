@@ -2,8 +2,11 @@ import React from "react";
 import { StyleSheet, KeyboardAvoidingView } from "react-native";
 import * as firebase from "firebase";
 import LoginModule from "../components/LoginModule";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+import { setUser } from "../actions/UserActions";
 
-export default class LoginScreen extends React.Component {
+class LoginScreen extends React.Component {
   state = {
     email: "",
     password: "",
@@ -14,7 +17,20 @@ export default class LoginScreen extends React.Component {
     // Runs if the page loads
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
-        this.props.navigation.navigate("Main");
+        const database = firebase.database();
+        database.ref("/users/" + user.uid).once("value", snapshot => {
+          let user = { ...snapshot.val() };
+          database
+            .ref("/Outlets/" + snapshot.val().location)
+            .once("value", locationSnapshot => {
+              user.location = locationSnapshot.val();
+              this.props.setUser(user);
+              console.log(this.props.user);
+              this.props.navigation.navigate("Main");
+            });
+        });
+      } else {
+        this.props.navigation.navigate("Login");
       }
     });
   }
@@ -55,3 +71,14 @@ const style = StyleSheet.create({
     justifyContent: "center" /* vertical */
   }
 });
+
+const mapStateToProps = state => state;
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      setUser
+    },
+    dispatch
+  );
+
+export default connect(mapStateToProps, mapDispatchToProps)(LoginScreen);
