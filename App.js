@@ -13,6 +13,10 @@ import SignupScreen from "./screens/SignupScreen.js";
 
 const store = createStore(userReducer);
 
+/* 
+  Firebase 
+*/
+
 var firebaseConfig = {
   apiKey: "AIzaSyCqvpP5fwKUghPZC1WQVlZmsMjE9sj1mTQ",
   authDomain: "foodflip-272d2.firebaseapp.com",
@@ -26,6 +30,10 @@ var firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 // firebase.analytics();
+
+/*
+  Navigation
+*/
 
 const RootStack = createSwitchNavigator(
   {
