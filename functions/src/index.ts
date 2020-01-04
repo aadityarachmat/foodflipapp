@@ -6,15 +6,35 @@ export const helloWorld = functions.https.onRequest((request, response) => {
   response.send("Hello from Firebase!");
 });
 
+async function getDistance(
+  outletId: String,
+  recipientId: String
+): Promise<number> {
+  let distance: number = await admin
+    .database()
+    .ref(`/distance/${outletId}/${recipientId}`)
+    .once("value")
+    .then(snapshot => snapshot.val())
+    .catch(err => err);
+
+  console.log(distance, "THIS IS THE DISTANCE");
+
+  return distance;
+}
+
 export const onNewDelivery = functions.database
   .ref("/deliveries/{deliveryId}")
-  .onCreate((snapshot, context) => {
+  .onCreate(async (snapshot, context) => {
     const deliveryId = context.params.deliveryId;
     console.log(`Delivery ID: ${deliveryId}`);
 
     const deliveryData = snapshot.val();
     const sender = deliveryData.sender;
     console.log(`Sender: ${sender}`);
+
+    const distance = await getDistance("BATS", "Dorkas");
+
+    console.log(distance, "GET THE DISTANCE");
 
     return admin
       .database()
@@ -23,7 +43,8 @@ export const onNewDelivery = functions.database
       .then(recipientSnapshot => recipientSnapshot.val())
       .then(recipients =>
         snapshot.ref.update({
-          orphanageList: recipients
+          orphanageList: recipients,
+          distance
         })
       );
   });
@@ -46,22 +67,3 @@ export const onUpdatedDelivery = functions.database
       orphanageList: "insert orphanage list value"
     });
   });
-
-// export const onNewDelivery = functions.database
-//   .ref("/deliveries/{deliveryId}")
-//   .onWrite(async function(change) {
-//     const after = change.after.val();
-
-//     const recipients = await admin
-//       .database()
-//       .ref("/Recipients")
-//       .once("value")
-//       .then(function(snapshot) {
-//         return snapshot.val();
-//       });
-
-//     console.log("After: " + after);
-//     console.log("Recipients: " + recipients);
-
-//     return recipients;
-//   });
