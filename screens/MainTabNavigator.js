@@ -10,6 +10,7 @@ import { connect } from "react-redux";
 import NewDeliveryScreen from "./NewDeliveryScreen";
 import InboxScreen from "./InboxScreen";
 import MyInfoScreen from "./MyInfoScreen";
+import { createAppContainer } from "react-navigation";
 
 const NewDeliveryStack = createStackNavigator({
   NewDelivery: NewDeliveryScreen
@@ -58,9 +59,10 @@ class MainTabNavigator extends React.Component {
       Inbox: InboxStack,
       MyInfo: MyInfoScreen
     });
+    const AppContainer = createAppContainer(MainTabNavigator);
     return (
       <>
-        <MainTabNavigator />
+        <AppContainer />
       </>
     );
   }
