@@ -5,6 +5,7 @@ import { createStackNavigator } from "react-navigation-stack";
 import { Ionicons, AntDesign } from "@expo/vector-icons"; // search expo vector icons to see full list
 
 import * as firebase from "firebase";
+import { connect } from "react-redux";
 
 import NewDeliveryScreen from "./NewDeliveryScreen";
 import InboxScreen from "./InboxScreen";
@@ -41,9 +42,12 @@ InboxStack.navigationOptions = {
 };
 
 const MainTabNavigator = createBottomTabNavigator({
-  NewDelivery: NewDeliveryStack,
+  ...(this.props.user.type === "outletStaff"
+    ? { NewDelivery: NewDeliveryStack }
+    : {}),
   Inbox: InboxStack,
   MyInfo: MyInfoScreen
 });
 
-export default MainTabNavigator;
+const mapStateToProps = state => state;
+export default connect(mapStateToProps)(MainTabNavigator);

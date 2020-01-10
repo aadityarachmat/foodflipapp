@@ -46,26 +46,35 @@ async function getNumberOfRecipients(recipientId: String): Promise<number> {
   return numberOfRecipients;
 }
 
+// minScore = distance >= maxDistance, max distance = 20
+function getDistanceNormalized(distance: number): number {
+  const maxDistance = 20;
+  if (distance >= maxDistance) {
+    return 0;
+  } else {
+    return 1 - distance / maxDistance;
+  }
+}
+
+// maxScore = time >= twoWeeks
 function getTimeNormalized(timeElapsed: number): number {
   const twoWeeks: number = 8.67 * (10 ^ 7) * 14;
-  if (timeElapsed > twoWeeks) {
+  if (timeElapsed >= twoWeeks) {
     return 1;
   } else {
     return timeElapsed / twoWeeks;
   }
 }
 
+// maxScore = numberOfRecipients >= quantityFood
 function getNumberOfRecipientsNormalized(
   numberOfRecipients: number,
   quantityFood: number
 ): number {
-  const difference: number = numberOfRecipients - quantityFood;
-  if (difference <= 0) {
-    return 0;
-  } else if (difference > numberOfRecipients) {
+  if (numberOfRecipients >= quantityFood) {
     return 1;
   } else {
-    return difference / numberOfRecipients;
+    return numberOfRecipients / quantityFood;
   }
 }
 
@@ -82,7 +91,8 @@ async function getRecipientScore(
   const time: number = await getTimeSinceLastDelivery(recipientId);
   const numberOfRecipients: number = await getNumberOfRecipients(recipientId);
 
-  // Normalized (0-1)
+  // Scores, Normalized (0-1)
+  const distanceNormalized = getDistanceNormalized(distance);
   const timeNormalized = getTimeNormalized(time);
   const numberOfRecipientsNormalized = getNumberOfRecipientsNormalized(
     numberOfRecipients,
@@ -94,17 +104,18 @@ async function getRecipientScore(
     "Number of Recipients Normalized: ",
     numberOfRecipientsNormalized
   );
+  console.log("Distance Normalized: ", distanceNormalized);
 
-  const distanceScore: number = distance * distanceCoefficient;
-  const timeScore: number = time * timeCoefficient;
+  const distanceScore: number = distanceNormalized * distanceCoefficient;
+  const timeScore: number = timeNormalized * timeCoefficient;
   const numberOfRecipientsScore: number =
-    numberOfRecipients * numberOfRecipientsCoefficient;
+    numberOfRecipientsNormalized * numberOfRecipientsCoefficient;
 
-  console.log("Scores: ");
-  console.log(distanceScore, timeScore, numberOfRecipientsScore);
+  // console.log("Scores: ");
+  // console.log(distanceScore, timeScore, numberOfRecipientsScore);
 
   const sum: number = distanceScore + timeScore + numberOfRecipientsScore;
-  console.log("Total score: ", sum);
+  // console.log("Total score: ", sum);
 
   return sum;
 }
@@ -113,7 +124,7 @@ function getRecipientScores(
   outletId: String,
   recipients: Object,
   quantity: number
-): Promise<{ id: String; score: number }[]> {
+): Promise<void | { id: String; score: number }[]> {
   const recipientScores = [];
   const recipientIds: String[] = [];
   for (const recipient in recipients) {
@@ -125,27 +136,27 @@ function getRecipientScores(
       1,
       1
     );
-    console.log(`Recipient (ID: ${recipient}) Score: ${recipientScore}`);
+    // console.log(`Recipient (ID: ${recipient}) Score: ${recipientScore}`);
     recipientScores.push(recipientScore);
     recipientIds.push(recipient);
   }
-  return Promise.all(recipientScores)
-    .then(recipientScores => {
-      const recipientIdsAndScores = [];
-      for (var i = 0; i < recipientScores.length; i++) {
-        recipientIdsAndScores.push({
-          id: recipientIds[i],
-          score: recipientScores[i]
-        });
-      }
-    })
-    .catch(err => err);
+  return Promise.all(recipientScores).then(settledScores => {
+    const recipientIdsAndScores = [];
+    for (let i = 0; i < settledScores.length; i++) {
+      recipientIdsAndScores.push({
+        id: recipientIds[i],
+        score: settledScores[i]
+      });
+    }
+    return recipientIdsAndScores;
+  });
+  // .catch(err => err);
 }
 
 function getSortedByScore(
   recipientScores: { id: String; score: number }[]
 ): { id: String; score: number }[] {
-  let sortedScores = recipientScores;
+  const sortedScores = recipientScores;
   sortedScores.sort((a, b) => {
     if (a.score < b.score) {
       return 1;
@@ -156,20 +167,37 @@ function getSortedByScore(
   return sortedScores;
 }
 
-export const onNewDelivery = functions.database // maintain async here, because subfunctions require async
+// Pushes new message AND increments index
+async function pushNewMessage(
+  currentRecipient: { id: String; score: number },
+  deliveryId: String,
+  currentIndex: number
+) {
+  const recipientId: String = currentRecipient.id;
+  const timePushed = Date.now();
+  const index = currentIndex + 1;
+
+  console.log("Pushed new message to recipient", recipientId);
+
+  await admin
+    .database()
+    .ref(`/messages/${recipientId}`)
+    .push()
+    .set({ deliveryId, timePushed });
+
+  await admin
+    .database()
+    .ref(`/deliveries/${deliveryId}`)
+    .update({ index });
+}
+
+export const onNewDelivery = functions.database
   .ref("/deliveries/{deliveryId}")
   .onCreate(async (snapshot, context) => {
-    const deliveryId = context.params.deliveryId;
-    console.log(`Delivery ID: ${deliveryId}`);
-
     const deliveryData = snapshot.val();
+    const deliveryId = context.params.deliveryId;
     const sender = deliveryData.sender;
-    console.log(`Sender: ${sender}`);
-
-    // const distance = await getDistance("BATS", "Dorkas");
-    // const timeSinceLastDelivery = await getTimeSinceLastDelivery("Dorkas");
-    // const numberOfRecipients = await getNumberOfRecipients("Dorkas");
-    // const score = await getRecipientScore("BATS", "Dorkas");
+    const index = 0;
 
     const recipients = await admin
       .database()
@@ -177,36 +205,21 @@ export const onNewDelivery = functions.database // maintain async here, because 
       .once("value")
       .then(recipientSnapshot => recipientSnapshot.val());
 
-    let recipientScores = getRecipientScores(
-      "BATS",
+    const recipientScores = await getRecipientScores(
+      sender.location,
       recipients,
       deliveryData.quantity
     );
 
-    // not a function, not promises.all() method of obtaining recipientScores
-    // for (const recipient in recipients) {
-    //   const recipientScore: number = await getRecipientScore(
-    //     "BATS",
-    //     recipient,
-    //     deliveryData.quantity,
-    //     1,
-    //     2,
-    //     1
-    //   );
-    //   console.log(`Recipient (ID: ${recipient}) Score: ${recipientScore}`);
-    //   recipientScores.push({ id: recipient, score: recipientScore });
-    // }
-
-    const sortedScores = recipientScores.then(recipientScores =>
-      getSortedByScore(recipientScores)
-    ); // Descending
-
-    // const recipientScores = await getRecipientScores("BATS", recipients);
+    // @ts-ignore
+    const sortedScores = getSortedByScore(recipientScores);
+    const currentRecipient = sortedScores[index];
+    await pushNewMessage(currentRecipient, deliveryId, index);
 
     return snapshot.ref
       .update({
-        orphanageList: recipients,
-        sortedScores
+        sortedScores,
+        index
       })
       .catch(err => err);
   });

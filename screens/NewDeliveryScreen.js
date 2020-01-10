@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Div } from "react-native";
 import { Dropdown } from "react-native-material-dropdown";
 import * as firebase from "firebase";
+import { connect } from "react-redux";
 
 import CustomTextInput from "../components/CustomTextInput";
 
@@ -14,20 +15,28 @@ const dropdownChoices = [
   }
 ];
 
-export default class NewDeliveryScreen extends React.Component {
+class NewDeliveryScreen extends React.Component {
   state = {
+    unit: "",
     quantity: "",
     note: ""
   };
 
   handleSubmit() {
-    const { quantity, note } = this.state;
+    const { quantity, note, unit } = this.state;
+    const deliveryStatus = "Awaiting confirmation from recipient";
+    const sender = this.props.user;
     const database = firebase.database();
+
+    console.log(sender);
 
     // Get outlets, fill outlets array
     database.ref("/deliveries").push({
+      deliveryStatus,
       quantity,
-      note
+      note,
+      unit,
+      sender
     });
   }
 
@@ -37,6 +46,7 @@ export default class NewDeliveryScreen extends React.Component {
         <Text style={styles.title}>New Delivery</Text>
         <Dropdown
           label="Unit"
+          onChangeText={text => this.setState({ unit: text })}
           data={dropdownChoices}
           containerStyle={styles.dropdownContainer}
         />
@@ -97,3 +107,7 @@ const styles = StyleSheet.create({
     color: "red"
   }
 });
+
+const mapStateToProps = state => state;
+
+export default connect(mapStateToProps)(NewDeliveryScreen);

@@ -17,17 +17,18 @@ class LoginScreen extends React.Component {
     // Runs if the page loads
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
+        const userId = user.uid;
         const database = firebase.database();
         database.ref("/users/" + user.uid).once("value", snapshot => {
-          let user = { ...snapshot.val() };
+          let user = { ...snapshot.val(), userId };
           database
             .ref("/Outlets/" + snapshot.val().location)
             .once("value", locationSnapshot => {
-              user.location = locationSnapshot.val();
-              this.props.setUser(user);
-              console.log(this.props.user);
-              this.props.navigation.navigate("Main");
+              user.locationValue = locationSnapshot.val();
             });
+          this.props.setUser(user);
+          console.log(this.props.user);
+          this.props.navigation.navigate("Main");
         });
       } else {
         this.props.navigation.navigate("Login");

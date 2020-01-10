@@ -53,17 +53,20 @@ export default class ContinueSignupScreen extends React.Component {
     const database = firebase.database();
 
     // Get outlets, fill outlets array
-    database.ref("/Outlets").once("value", snapshot => {
-      let outlets = [];
-      snapshot.forEach(childSnapshot => {
-        const id = childSnapshot.key;
-        // Get JS Object:
-        const outlet = childSnapshot.val();
-        const fullName = outlet.Retailer + " – " + outlet.Name;
-        outlets.push({ id, fullName });
+    database
+      .ref("/Outlets")
+      .once("value")
+      .then(snapshot => {
+        const outlets = [];
+        snapshot.forEach(childSnapshot => {
+          const id = childSnapshot.key;
+          // Get JS Object:
+          const outlet = childSnapshot.val();
+          const fullName = outlet.Retailer + " – " + outlet.Name;
+          outlets.push({ id, fullName });
+        });
+        this.setState({ outlets });
       });
-      this.setState({ outlets });
-    });
 
     // Get recipients, fill recipients array
     database.ref("/Recipients").once("value", snapshot => {
@@ -88,6 +91,7 @@ export default class ContinueSignupScreen extends React.Component {
   render() {
     // TODO: Add navigation to choose location, choose shift
     let data = this.getData();
+    console.log("locations:", data);
     return (
       <>
         <Modal visible={this.state.locationModalVisible} animationType="slide">

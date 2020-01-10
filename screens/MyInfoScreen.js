@@ -10,16 +10,34 @@ class MyInfoScreen extends React.Component {
     phone: "",
     email: "", // TODO Fix the thing
     type: "",
-    location: {},
-    shift: ""
+    location: "",
+    shift: "",
+    locationValue: {}
   };
 
-  componentDidMount() {
-    // Check who we're logged in as
-  }
+  LocationValue = () => {
+    if (this.props.user.locationValue !== undefined) {
+      const { Name, Address, Retailer } = this.props.user.locationValue;
+      return (
+        <>
+          <Text style={styles.label}>Location:</Text>
+          <Text style={styles.field}>{Name}</Text>
+          <Text style={styles.label}>Address:</Text>
+          <Text style={styles.field}>{Address}</Text>
+          <Text style={styles.label}>Retailer:</Text>
+          <Text style={styles.field}>{Retailer}</Text>
+          <Text style={styles.label}>Operation Details:</Text>
+          <Text style={styles.field}>
+            {this.props.user.locationValue["Operation Details"]}
+          </Text>
+        </>
+      );
+    } else {
+      return;
+    }
+  };
 
   render() {
-    console.log(this.props);
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <Text style={styles.header}>My Info</Text>
@@ -33,17 +51,7 @@ class MyInfoScreen extends React.Component {
         <Text style={styles.field}>{this.props.user.shift}</Text>
         <Text style={styles.label}>Type:</Text>
         <Text style={styles.field}>{this.props.user.type}</Text>
-
-        <Text style={styles.label}>Location:</Text>
-        <Text style={styles.field}>{this.props.user.location.Name}</Text>
-        <Text style={styles.label}>Address:</Text>
-        <Text style={styles.field}>{this.props.user.location.Address}</Text>
-        <Text style={styles.label}>Retailer:</Text>
-        <Text style={styles.field}>{this.props.user.location.Retailer}</Text>
-        <Text style={styles.label}>Operation Details:</Text>
-        <Text style={styles.field}>
-          {this.props.user.location["Operation Details"]}
-        </Text>
+        {this.LocationValue()}
         <TouchableOpacity
           onPress={
             () =>

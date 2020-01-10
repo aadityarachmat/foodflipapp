@@ -4,16 +4,14 @@ const INITIAL_STATE = {
   email: "",
   phone: "",
   location: {
-    Address:
-      "Plaza Atrium, Senen Raya Road, RW.2, Senen, Central Jakarta City, Jakarta",
-    Name: "Atrium Senen",
-    "Operation Details": "Pick up at 10am",
-    Retailer: "Breadlife"
+    Address: "",
+    Name: "",
+    Retailer: ""
   },
-  name: "test_user1",
-  phone: "12345678",
-  shift: "Thursday",
-  type: "outletStaff"
+  name: "",
+  phone: "",
+  shift: "",
+  type: ""
 };
 
 const userReducer = (state = INITIAL_STATE, action) => {
