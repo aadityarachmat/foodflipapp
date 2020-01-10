@@ -1,6 +1,5 @@
 import React from "react";
 import { createAppContainer, createSwitchNavigator } from "react-navigation";
-import MainTabNavigator from "./screens/MainTabNavigator";
 
 import { Provider } from "react-redux";
 import { createStore } from "redux";
@@ -8,6 +7,7 @@ import userReducer from "./reducers/UserReducer";
 
 import * as firebase from "firebase";
 
+import MainTabNavigator from "./screens/MainTabNavigator";
 import LoginScreen from "./screens/LoginScreen.js";
 import SignupScreen from "./screens/SignupScreen.js";
 

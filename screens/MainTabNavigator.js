@@ -41,13 +41,30 @@ InboxStack.navigationOptions = {
   )
 };
 
-const MainTabNavigator = createBottomTabNavigator({
-  ...(this.props.user.type === "outletStaff"
-    ? { NewDelivery: NewDeliveryStack }
-    : {}),
-  Inbox: InboxStack,
-  MyInfo: MyInfoScreen
-});
+// const MainTabNavigator = createBottomTabNavigator({
+//   ...(this.props.user.type === "outletStaff"
+//     ? { NewDelivery: NewDeliveryStack }
+//     : {}),
+//   Inbox: InboxStack,
+//   MyInfo: MyInfoScreen
+// });
+
+class MainTabNavigator extends React.Component {
+  render() {
+    const MainTabNavigator = createBottomTabNavigator({
+      ...(this.props.user.type === "outletStaff"
+        ? { NewDelivery: NewDeliveryStack }
+        : {}),
+      Inbox: InboxStack,
+      MyInfo: MyInfoScreen
+    });
+    return (
+      <>
+        <MainTabNavigator />
+      </>
+    );
+  }
+}
 
 const mapStateToProps = state => state;
 export default connect(mapStateToProps)(MainTabNavigator);
