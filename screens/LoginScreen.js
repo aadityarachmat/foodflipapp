@@ -13,37 +13,40 @@ class LoginScreen extends React.Component {
     error: ""
   };
 
-  componentDidMount() {
-    // Runs if the page loads
+  setUserContainer = () => {
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
         const userId = user.uid;
         const database = firebase.database();
-        database.ref("/users/" + user.uid).once("value", snapshot => {
+        database.ref("/users/" + user.uid).once("value", async snapshot => {
           let user = { ...snapshot.val(), userId };
           database
             .ref("/Outlets/" + snapshot.val().location)
             .once("value", locationSnapshot => {
               user.locationValue = locationSnapshot.val();
             });
-          this.props.setUser(user);
-          console.log(this.props.user);
+          await this.props.setUser(user);
+          console.log("user in setUserContainer: ", user);
           this.props.navigation.navigate("Main");
         });
       } else {
         this.props.navigation.navigate("Login");
       }
     });
+  };
+
+  componentDidMount() {
+    // Runs if the page loads
+    this.setUserContainer();
   }
 
-  handleLogin() {
+  async handleLogin() {
     const { email, password } = this.state;
-    firebase
+    await firebase
       .auth()
       .signInWithEmailAndPassword(email, password)
-      .then(() => this.props.navigation.navigate("Main"))
       .catch(error => this.setState({ error: error.message }));
-    console.log("handleLogin");
+    this.setUserContainer();
   }
 
   render() {

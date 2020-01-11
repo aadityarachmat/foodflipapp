@@ -11,7 +11,7 @@ import MainTabNavigator from "./screens/MainTabNavigator";
 import LoginScreen from "./screens/LoginScreen.js";
 import SignupScreen from "./screens/SignupScreen.js";
 
-const store = createStore(userReducer);
+import store from "./store";
 
 /* 
   Firebase 

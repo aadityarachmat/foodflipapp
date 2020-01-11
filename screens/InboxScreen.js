@@ -139,12 +139,15 @@ class InboxScreen extends React.Component {
 
   componentDidMount() {
     console.log("Inbox screen mounted");
+    console.log("shift: ", this.props.user);
     if (this.props.user.shift === getDayOfWeekString()) {
+      console.log("shift is today");
       firebase
         .database()
         .ref(`/messages/${this.props.user.location}`) // Possible promise rejection if ref doesn't exist, idk how to fix
         .on("value", async snapshot => {
           if (snapshot.exists()) {
+            console.log("listened to firebase messages");
             const messagesObject = snapshot.val();
 
             const messages = Object.keys(messagesObject).map(

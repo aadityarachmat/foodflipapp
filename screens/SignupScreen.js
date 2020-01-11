@@ -1,11 +1,14 @@
 import React from "react";
 import { StyleSheet, KeyboardAvoidingView } from "react-native";
 import * as firebase from "firebase";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+import { setUser } from "../actions/UserActions";
 
 import LoginModule from "../components/LoginModule";
 import ContinueSignupScreen from "./ContinueSignupScreen";
 
-export default class SignupScreen extends React.Component {
+class SignupScreen extends React.Component {
   state = {
     name: "",
     phone: "",
@@ -35,8 +38,8 @@ export default class SignupScreen extends React.Component {
             location,
             shift
           });
-        this.props.navigation.navigate("Main");
       })
+      .then(this.props.navigation.navigate("Main"))
       .catch(error => this.setState({ error: error.message }));
     console.log("handleLogin");
   }
@@ -76,3 +79,14 @@ const style = StyleSheet.create({
     justifyContent: "center" /* vertical */
   }
 });
+
+const mapStateToProps = state => state;
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      setUser
+    },
+    dispatch
+  );
+
+export default connect(mapStateToProps, mapDispatchToProps)(SignupScreen);
