@@ -26,7 +26,6 @@ class LoginScreen extends React.Component {
               user.locationValue = locationSnapshot.val();
             });
           await this.props.setUser(user);
-          console.log("user in setUserContainer: ", user);
           this.props.navigation.navigate("Main");
         });
       } else {

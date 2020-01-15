@@ -27,8 +27,7 @@ class NewDeliveryScreen extends React.Component {
     const deliveryStatus = "Awaiting confirmation from recipient";
     const sender = this.props.user;
     const database = firebase.database();
-
-    console.log(sender);
+    const timePushed = Date.now();
 
     // Get outlets, fill outlets array
     database.ref("/deliveries").push({
@@ -36,7 +35,8 @@ class NewDeliveryScreen extends React.Component {
       quantity,
       note,
       unit,
-      sender
+      sender,
+      timePushed
     });
   }
 

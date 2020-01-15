@@ -91,7 +91,6 @@ export default class ContinueSignupScreen extends React.Component {
   render() {
     // TODO: Add navigation to choose location, choose shift
     let data = this.getData();
-    console.log("locations:", data);
     return (
       <>
         <Modal visible={this.state.locationModalVisible} animationType="slide">

@@ -28,7 +28,6 @@ async function getTimeSinceLastDelivery(recipientId: String): Promise<number> {
     .catch(err => err);
 
   const now: number = Date.now();
-  console.log("now: ", now);
   const timeSinceLastDelivery: number = now - lastDeliveryTime;
 
   return timeSinceLastDelivery;
@@ -99,23 +98,12 @@ async function getRecipientScore(
     quantityFood
   );
 
-  console.log("Time Normalized: ", timeNormalized);
-  console.log(
-    "Number of Recipients Normalized: ",
-    numberOfRecipientsNormalized
-  );
-  console.log("Distance Normalized: ", distanceNormalized);
-
   const distanceScore: number = distanceNormalized * distanceCoefficient;
   const timeScore: number = timeNormalized * timeCoefficient;
   const numberOfRecipientsScore: number =
     numberOfRecipientsNormalized * numberOfRecipientsCoefficient;
 
-  // console.log("Scores: ");
-  // console.log(distanceScore, timeScore, numberOfRecipientsScore);
-
   const sum: number = distanceScore + timeScore + numberOfRecipientsScore;
-  // console.log("Total score: ", sum);
 
   return sum;
 }
@@ -136,7 +124,6 @@ function getRecipientScores(
       1,
       1
     );
-    // console.log(`Recipient (ID: ${recipient}) Score: ${recipientScore}`);
     recipientScores.push(recipientScore);
     recipientIds.push(recipient);
   }
@@ -191,13 +178,61 @@ async function pushNewMessage(
     .update({ index });
 }
 
+// async function pushNextMessage(deliveryId: String) {
+//   const delivery = await admin
+//     .database()
+//     .ref(`/deliveries/${deliveryId}`)
+//     .once("value")
+//     .then(snap => {
+//       return { value: snap.val(), key: snap.key };
+//     });
+//   const { value } = delivery;
+//   let key: String = "";
+//   if (delivery.key !== null) {
+//     key = delivery.key;
+//   }
+//   const index = value.index;
+//   const currentRecipient = value.sortedScores[index];
+//   pushNewMessage(currentRecipient, key, index);
+// }
+
+// Does pushNextMessage every interval minutes
+function startMessagesTimer(interval: number, deliveryId: String) {
+  const timer = setInterval(async function() {
+    const delivery = await admin
+      .database()
+      .ref(`/deliveries/${deliveryId}`)
+      .once("value")
+      .then(snap => {
+        return { value: snap.val(), key: snap.key };
+      });
+
+    // Extract value, key from delivery
+    const { value } = delivery;
+    let key: String = "";
+    if (delivery.key !== null) {
+      key = delivery.key;
+    }
+
+    // Check if all recipients have been messaged
+    const index = value.index;
+    if (index >= value.sortedScores.length) {
+      clearInterval(timer);
+      return;
+    }
+
+    const currentRecipient = value.sortedScores[index];
+    return pushNewMessage(currentRecipient, key, index);
+  }, interval * 1000 * 60);
+}
+
 export const onNewDelivery = functions.database
   .ref("/deliveries/{deliveryId}")
   .onCreate(async (snapshot, context) => {
     const deliveryData = snapshot.val();
     const deliveryId = context.params.deliveryId;
     const sender = deliveryData.sender;
-    const index = 0;
+    let index = 0;
 
     const recipients = await admin
       .database()
@@ -216,7 +251,15 @@ export const onNewDelivery = functions.database
     const currentRecipient = sortedScores[index];
     await pushNewMessage(currentRecipient, deliveryId, index);
 
-    return snapshot.ref
+    // Index is supposed to be incremented in pushNewMessage(),
+    // but pushNewMessage() executes before the ref is updated below, so we have to manually increment the index
+    index++;
+
+    // Start messages timer
+    // First parameter = interval in minutes between messages
+    startMessagesTimer(0.1, deliveryId);
+
+    snapshot.ref
       .update({
         sortedScores,
         index
@@ -232,7 +275,7 @@ export const onUpdatedDelivery = functions.database
 
     if (before.quantity === after.quantity) {
       console.log("Quantity unchanged, so no need to update");
-      return null;
+      return;
     }
 
     const timeEdited = Date.now();

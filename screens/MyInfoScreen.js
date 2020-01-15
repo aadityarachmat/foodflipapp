@@ -38,7 +38,6 @@ class MyInfoScreen extends React.Component {
   };
 
   render() {
-    console.log(this.props);
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <Text style={styles.header}>My Info</Text>

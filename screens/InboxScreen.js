@@ -34,8 +34,17 @@ function getDayOfWeekString() {
   }
 }
 
+function millisecondsToString(milliseconds) {
+  let date = new Date(milliseconds);
+  let time = date.getHours() + ":" + date.getMinutes();
+  let dmy =
+    date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear();
+  return time + " " + dmy;
+}
+
 class Item extends React.Component {
   render() {
+    const { delivery, timePushed } = this.props.item;
     return (
       // Entire message
       <View
@@ -75,7 +84,7 @@ class Item extends React.Component {
                 textAlign: "center"
               }}
             >
-              {this.props.item.sender.location.charAt(0)}
+              {delivery.sender.location.charAt(0)}
             </Text>
           </View>
         </View>
@@ -97,10 +106,10 @@ class Item extends React.Component {
                 textAlign: "center"
               }}
             >
-              {this.props.item.sender.location}
+              {delivery.sender.location}
             </Text>
             <Text style={{ fontSize: 12, color: "#3b60c4" }}>
-              7:00 AM
+              {millisecondsToString(timePushed)}
               {/* TODO: get when new delivery pushed to database */}
             </Text>
           </View>
@@ -113,14 +122,14 @@ class Item extends React.Component {
                 ellipsizeMode="tail"
                 numberOfLines={1}
               >
-                {this.props.item.quantity} {this.props.item.unit}
+                {delivery.quantity} {delivery.unit}
               </Text>
               <Text
                 style={{ color: "gray", paddingTop: 2 }}
                 ellipsizeMode="tail"
                 numberOfLines={1}
               >
-                {this.props.item.note}
+                {delivery.note}
               </Text>
             </View>
           </View>
@@ -138,16 +147,12 @@ class InboxScreen extends React.Component {
   };
 
   componentDidMount() {
-    console.log("Inbox screen mounted");
-    console.log("shift: ", this.props.user);
     if (this.props.user.shift === getDayOfWeekString()) {
-      console.log("shift is today");
       firebase
         .database()
-        .ref(`/messages/${this.props.user.location}`) // Possible promise rejection if ref doesn't exist, idk how to fix
+        .ref(`/messages/${this.props.user.location}`)
         .on("value", async snapshot => {
           if (snapshot.exists()) {
-            console.log("listened to firebase messages");
             const messagesObject = snapshot.val();
 
             const messages = Object.keys(messagesObject).map(
@@ -170,24 +175,27 @@ class InboxScreen extends React.Component {
 
   async getDeliveries() {
     const messages = this.state.messages;
-    const deliveryIds = [];
-    for (message in messages) {
-      deliveryIds.push(messages[message].deliveryId);
-    }
     const deliveryPromises = [];
-    for (deliveryId in deliveryIds) {
+    for (message in messages) {
       const delivery = firebase
         .database()
-        .ref(`/deliveries/${deliveryIds[deliveryId]}`)
+        .ref(`/deliveries/${messages[message].deliveryId}`)
         .once("value")
         .then(function(snapshot) {
           return snapshot.val();
         });
       deliveryPromises.push(delivery);
     }
-    const deliveries = await Promise.all(deliveryPromises);
+    const tempDeliveries = await Promise.all(deliveryPromises);
+    const deliveries = [];
+    // attaches time pushed to deliveries
+    for (let i = 0; i < tempDeliveries.length; i++) {
+      deliveries.push({
+        delivery: tempDeliveries[i],
+        timePushed: messages[i].timePushed
+      });
+    }
     this.setState({ deliveries });
-    // console.log("deliveries: ", this.state.deliveries);
   }
 
   render() {

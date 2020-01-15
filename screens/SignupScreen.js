@@ -20,6 +20,27 @@ class SignupScreen extends React.Component {
     shift: ""
   };
 
+  setUserContainer = () => {
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        const userId = user.uid;
+        const database = firebase.database();
+        database.ref("/users/" + user.uid).once("value", async snapshot => {
+          let user = { ...snapshot.val(), userId };
+          database
+            .ref("/Outlets/" + snapshot.val().location)
+            .once("value", locationSnapshot => {
+              user.locationValue = locationSnapshot.val();
+            });
+          await this.props.setUser(user);
+          this.props.navigation.navigate("Main");
+        });
+      } else {
+        this.props.navigation.navigate("Login");
+      }
+    });
+  };
+
   handleSignup() {
     const { location, email, password, name, phone, type, shift } = this.state;
     firebase
@@ -39,9 +60,8 @@ class SignupScreen extends React.Component {
             shift
           });
       })
-      .then(this.props.navigation.navigate("Main"))
+      .then(this.setUserContainer())
       .catch(error => this.setState({ error: error.message }));
-    console.log("handleLogin");
   }
 
   render() {
