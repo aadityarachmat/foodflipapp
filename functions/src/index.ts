@@ -227,11 +227,15 @@ function startMessagesTimer(interval: number, deliveryId: String) {
 }
 
 async function deleteOtherMessages(acceptedBy: String, deliveryId: String) {
+  // acceptedBy = location which accepts
   const messagesRef = admin.database().ref("/messages");
+
   const messages = await messagesRef.once("value").then(snap => snap.val());
 
   // Message Keys = locationIds since messages are sorted by location
   const messagesKeys = Object.keys(messages);
+
+  const promises = [];
 
   // Iterates through /messages/${locationId}
   for (let i = 0; i < messagesKeys.length; i++) {
@@ -240,22 +244,25 @@ async function deleteOtherMessages(acceptedBy: String, deliveryId: String) {
     }
 
     // Location = object containing individual messages for a location
-    let locationRef = messagesRef.child(messagesKeys[i]);
-    let location = await locationRef.once("value").then(snap => snap.val());
+    const locationRef = messagesRef.child(messagesKeys[i]);
+    const location = await locationRef.once("value").then(snap => snap.val());
 
-    console.log("location:", location);
-
-    let locationKeys = Object.keys(location);
-    let locationValues = Object.values(location);
+    const locationKeys = Object.keys(location);
+    const locationValues: any = Object.values(location);
 
     // Iterates through /messages/${locationId}/${messageId}
-    for (let j = 0; j < locationKeys.length; i++) {
-      // @ts-ignore
+    for (let j = 0; j < locationKeys.length; j++) {
       if (locationValues[j].deliveryId === deliveryId) {
-        locationRef.child(locationKeys[j]).remove();
+        const removePromise = locationRef
+          .child(locationKeys[j])
+          .remove()
+          .then(() => console.log("message deleted"));
+        promises.push(removePromise);
       }
     }
   }
+
+  return Promise.all(promises);
 }
 
 export const onNewDelivery = functions.database
@@ -308,7 +315,7 @@ export const onUpdatedDelivery = functions.database
     const deliveryId = context.params.deliveryId;
 
     if (after.acceptedBy && !before.acceptedBy) {
-      deleteOtherMessages(after.acceptedBy, deliveryId);
+      return deleteOtherMessages(after.acceptedBy, deliveryId);
     }
 
     if (before.quantity === after.quantity) {

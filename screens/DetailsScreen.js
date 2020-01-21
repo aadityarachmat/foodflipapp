@@ -23,49 +23,12 @@ class DetailsScreen extends React.Component {
   }
 
   acceptDelivery = () => {
-    const { userId } = this.props.user;
+    const { location } = this.props.user;
     const { deliveryId } = this.state.item;
     firebase
       .database()
       .ref("/deliveries/" + deliveryId)
-      .update({ acceptedBy: userId });
-    this.deleteOtherMessages();
-  };
-
-  deleteOtherMessages = async () => {
-    const userLocation = this.props.user.location;
-    const { deliveryId } = this.state.item;
-
-    const messagesRef = firebase.database().ref("/messages");
-    const messages = await messagesRef.once("value").then(snap => snap.val());
-
-    // Message Keys = locationIds since messages are sorted by location
-    const messagesKeys = Object.keys(messages);
-
-    // Iterates through /messages/${locationId}
-    for (let i = 0; i < messagesKeys.length; i++) {
-      if (messagesKeys[i] === userLocation) {
-        continue;
-      }
-
-      // Location = object containing individual messages for a location
-      let locationRef = messagesRef.child(messagesKeys[i]);
-      let location = await locationRef.once("value").then(snap => snap.val());
-
-      console.log("location:", location);
-
-      let locationKeys = Object.keys(location);
-      let locationValues = Object.values(location);
-
-      // Iterates through /messages/${locationId}/${messageId}
-      for (let j = 0; j < locationKeys.length; i++) {
-        if (locationValues[j].deliveryId === deliveryId) {
-          locationRef.child(locationKeys[j]).remove();
-        }
-      }
-    }
-
-    console.log("finished deleting");
+      .update({ acceptedBy: location });
   };
 
   render() {
@@ -73,6 +36,7 @@ class DetailsScreen extends React.Component {
     const { delivery, timePushed } = item;
     const { Address, Name, Retailer } = this.state.locationValue;
     const operationDetails = this.state.locationValue["Operation Details"];
+    console.log("user:", this.props.user);
     return (
       <View>
         <Text>Time Pushed: {timePushed}</Text>
