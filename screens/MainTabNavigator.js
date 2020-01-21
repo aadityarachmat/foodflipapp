@@ -10,6 +10,7 @@ import { connect } from "react-redux";
 import NewDeliveryScreen from "./NewDeliveryScreen";
 import InboxScreen from "./InboxScreen";
 import MyInfoScreen from "./MyInfoScreen";
+import DetailsScreen from "./DetailsScreen";
 import { createAppContainer } from "react-navigation";
 
 const NewDeliveryStack = createStackNavigator({
@@ -28,7 +29,8 @@ NewDeliveryStack.navigationOptions = {
 };
 
 const InboxStack = createStackNavigator({
-  Inbox: InboxScreen
+  Inbox: InboxScreen,
+  Details: DetailsScreen
 });
 
 InboxStack.navigationOptions = {

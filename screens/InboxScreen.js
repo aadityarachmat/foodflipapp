@@ -6,7 +6,7 @@ import {
   View,
   SectionList,
   Dimensions,
-  TouchableOpacity
+  TouchableWithoutFeedback
 } from "react-native";
 import * as firebase from "firebase";
 import Constants from "expo-constants";
@@ -46,95 +46,103 @@ class Item extends React.Component {
   render() {
     const { delivery, timePushed } = this.props.item;
     return (
-      // Entire message
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          backgroundColor: "white",
-          width: width,
-          borderBottomColor: "#eee",
-          borderBottomWidth: 1
-        }}
+      <TouchableWithoutFeedback
+        onPress={() =>
+          this.props.navigation.push("Details", {
+            item: this.props.item,
+            navigation: this.props.navigation
+          })
+        }
       >
-        {/* Icon */}
         <View
           style={{
-            width: 50,
-            justifyContent: "center",
+            flexDirection: "row",
             alignItems: "center",
-            paddingLeft: 14
+            backgroundColor: "white",
+            width: width,
+            borderBottomColor: "#eee",
+            borderBottomWidth: 1
           }}
         >
+          {/* Icon */}
           <View
             style={{
-              backgroundColor: "maroon",
-              height: 50,
               width: 50,
-              borderRadius: 50,
               justifyContent: "center",
-              alignItems: "center"
+              alignItems: "center",
+              paddingLeft: 14
             }}
           >
-            <Text
+            <View
               style={{
-                color: "rgba(255,255,255,.5)",
-                fontSize: 24,
-                fontWeight: "700",
-                textAlign: "center"
+                backgroundColor: "maroon",
+                height: 50,
+                width: 50,
+                borderRadius: 50,
+                justifyContent: "center",
+                alignItems: "center"
               }}
             >
-              {delivery.sender.location.charAt(0)}
-            </Text>
-          </View>
-        </View>
-        {/* Message Content */}
-        <View style={{ flex: 1, padding: 16, justifyContent: "center" }}>
-          {/* Sender Location */}
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "flex-start"
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 18,
-                color: "black",
-                fontWeight: "700",
-                textAlign: "center"
-              }}
-            >
-              {delivery.sender.location}
-            </Text>
-            <Text style={{ fontSize: 12, color: "#3b60c4" }}>
-              {millisecondsToString(timePushed)}
-              {/* TODO: get when new delivery pushed to database */}
-            </Text>
-          </View>
-          <View
-            style={{ flexDirection: "row", paddingRight: 24, paddingTop: 2 }}
-          >
-            <View>
               <Text
-                style={{ fontWeight: "700" }}
-                ellipsizeMode="tail"
-                numberOfLines={1}
+                style={{
+                  color: "rgba(255,255,255,.5)",
+                  fontSize: 24,
+                  fontWeight: "700",
+                  textAlign: "center"
+                }}
               >
-                {delivery.quantity} {delivery.unit}
-              </Text>
-              <Text
-                style={{ color: "gray", paddingTop: 2 }}
-                ellipsizeMode="tail"
-                numberOfLines={1}
-              >
-                {delivery.note}
+                {delivery.sender.location.charAt(0)}
               </Text>
             </View>
           </View>
+          {/* Message Content */}
+          <View style={{ flex: 1, padding: 16, justifyContent: "center" }}>
+            {/* Sender Location */}
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "flex-start"
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 18,
+                  color: "black",
+                  fontWeight: "700",
+                  textAlign: "center"
+                }}
+              >
+                {delivery.sender.location}
+              </Text>
+              <Text style={{ fontSize: 12, color: "#3b60c4" }}>
+                {millisecondsToString(timePushed)}
+                {/* TODO: get when new delivery pushed to database */}
+              </Text>
+            </View>
+            <View
+              style={{ flexDirection: "row", paddingRight: 24, paddingTop: 2 }}
+            >
+              <View>
+                <Text
+                  style={{ fontWeight: "700" }}
+                  ellipsizeMode="tail"
+                  numberOfLines={1}
+                >
+                  {delivery.quantity} {delivery.unit}
+                </Text>
+                <Text
+                  style={{ color: "gray", paddingTop: 2 }}
+                  ellipsizeMode="tail"
+                  numberOfLines={1}
+                >
+                  {delivery.note}
+                </Text>
+              </View>
+            </View>
+          </View>
         </View>
-      </View>
+      </TouchableWithoutFeedback>
     );
   }
 }
@@ -192,7 +200,8 @@ class InboxScreen extends React.Component {
     for (let i = 0; i < tempDeliveries.length; i++) {
       deliveries.push({
         delivery: tempDeliveries[i],
-        timePushed: messages[i].timePushed
+        timePushed: messages[i].timePushed,
+        deliveryId: messages[i].deliveryId
       });
     }
     this.setState({ deliveries });
@@ -210,7 +219,13 @@ class InboxScreen extends React.Component {
         <SectionList
           sections={DATA}
           keyExtractor={(item, index) => item + index}
-          renderItem={({ item, index }) => <Item item={item} index={index} />}
+          renderItem={({ item, index }) => (
+            <Item
+              item={item}
+              index={index}
+              navigation={this.props.navigation}
+            />
+          )}
           renderSectionHeader={({ section: { title } }) => (
             <Text style={styles.header}>{title}</Text>
           )}

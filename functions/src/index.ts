@@ -226,6 +226,38 @@ function startMessagesTimer(interval: number, deliveryId: String) {
   }, interval * 1000 * 60);
 }
 
+async function deleteOtherMessages(acceptedBy: String, deliveryId: String) {
+  const messagesRef = admin.database().ref("/messages");
+  const messages = await messagesRef.once("value").then(snap => snap.val());
+
+  // Message Keys = locationIds since messages are sorted by location
+  const messagesKeys = Object.keys(messages);
+
+  // Iterates through /messages/${locationId}
+  for (let i = 0; i < messagesKeys.length; i++) {
+    if (messagesKeys[i] === acceptedBy) {
+      continue;
+    }
+
+    // Location = object containing individual messages for a location
+    let locationRef = messagesRef.child(messagesKeys[i]);
+    let location = await locationRef.once("value").then(snap => snap.val());
+
+    console.log("location:", location);
+
+    let locationKeys = Object.keys(location);
+    let locationValues = Object.values(location);
+
+    // Iterates through /messages/${locationId}/${messageId}
+    for (let j = 0; j < locationKeys.length; i++) {
+      // @ts-ignore
+      if (locationValues[j].deliveryId === deliveryId) {
+        locationRef.child(locationKeys[j]).remove();
+      }
+    }
+  }
+}
+
 export const onNewDelivery = functions.database
   .ref("/deliveries/{deliveryId}")
   .onCreate(async (snapshot, context) => {
@@ -253,7 +285,7 @@ export const onNewDelivery = functions.database
 
     // Index is supposed to be incremented in pushNewMessage(),
     // but pushNewMessage() executes before the ref is updated below, so we have to manually increment the index
-    index++;
+    index++; // TODO: cleanup
 
     // Start messages timer
     // First parameter = interval in minutes between messages
@@ -272,6 +304,12 @@ export const onUpdatedDelivery = functions.database
   .onUpdate((change, context) => {
     const before = change.before.val();
     const after = change.after.val();
+
+    const deliveryId = context.params.deliveryId;
+
+    if (after.acceptedBy && !before.acceptedBy) {
+      deleteOtherMessages(after.acceptedBy, deliveryId);
+    }
 
     if (before.quantity === after.quantity) {
       console.log("Quantity unchanged, so no need to update");
